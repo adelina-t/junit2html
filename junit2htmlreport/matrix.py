@@ -122,9 +122,12 @@ class HtmlReportMatrix(ReportMatrix, parser.HtmlHeadMixin):
         basename = os.path.basename(filename)
         # make the individual report too
         report = self.reports[basename].html()
-        with open(os.path.join(self.outdir, basename) + ".html",
-                  "w") as filehandle:
-            filehandle.write(report)
+        try:
+            with open(os.path.join(self.outdir, basename) + ".html",
+                      "w") as filehandle:
+                filehandle.write(report)
+        except:
+            pass
 
     def get_stats_table(self):
         stats = "<table class='result-stats'>"
@@ -173,30 +176,34 @@ class HtmlReportMatrix(ReportMatrix, parser.HtmlHeadMixin):
 
         stats = self.get_stats_table()
 
-        for axis in self.report_order():
-            label = axis
-            if label.endswith(".xml"):
-                label = label[:-4]
-            underskip = make_underskip(report_headers)
+        # for axis in self.report_order():
+        #     label = axis
+        #     if label.endswith(".xml"):
+        #         label = label[:-4]
+        #     underskip = make_underskip(report_headers)
 
-            header = "<td colspan='{}'><pre>{}</pre></td>".format(spansize,
-                                                                  label)
-            spansize -= 1
-            report_headers += 1
-            first_cell = ""
-            if not shown_stats:
-                # insert the stats table
-                first_cell = "<td rowspan='{}'>{}</td>".format(
-                    len(self.report_order()),
-                    stats
-                )
-                shown_stats = True
+        #     header = "<td colspan='{}'><pre>{}</pre></td>".format(spansize,
+        #                                                           label)
+        #     spansize -= 1
+        #     report_headers += 1
+        #     first_cell = ""
+        #     if not shown_stats:
+        #         # insert the stats table
+        #         first_cell = "<td rowspan='{}'>{}</td>".format(
+        #             len(self.report_order()),
+        #             stats
+        #         )
+        #         shown_stats = True
+        first_cell = "<td rowspan='1'>{}</td>".format(
+                stats
+            )
+        table_report_header = "<td></td>"
+        table_report_header += "<td class=tooltip-parent bgcolor=orange>x<div class=tooltip>link to test logs</div></td>" * len(self.report_order())
+        output += "<tr>{}</tr><tr>{}</tr>".format(first_cell,
+                                            table_report_header)
 
-            output += "<tr>{}{}{}</tr>".format(first_cell,
-                                               underskip, header)
-
-        output += "<tr><td></td>{}</tr>".format(
-            make_underskip(len(self.reports)))
+        # output += "<tr><td></td>{}</tr>".format(
+        #     make_underskip(len(self.reports)))
 
         # iterate each class
         for classname in self.classes:
